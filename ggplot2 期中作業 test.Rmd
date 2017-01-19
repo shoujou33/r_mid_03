@@ -2,8 +2,12 @@
 title: "ggplot2 期中作業"
 author: "沈姝妤"
 date: "1/19/2017"
-output: html_document
-
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    theme: paper
+    highlight: espresso
 ---
 
 ```{r setup, include=FALSE}
