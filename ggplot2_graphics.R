@@ -4,7 +4,7 @@
 # 期中作業：使用 ggplot2 與任意資料繪製散佈圖，線圖，直方圖，盒鬚圖與長條圖。
 # 可參考資料：http://docs.ggplot2.org/current/index.html
 
-str(iris)
+
 # 散佈圖
 ggplot(iris, aes(x = Petal.Length, y = Petal.Width, color = Species)) +
   geom_point() +
