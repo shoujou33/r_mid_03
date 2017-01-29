@@ -1,11 +1,12 @@
 ---
-title: "ggplot2 期中作業"
+title: "第三次期中作業：ggplot2 + R Markdown"
 author: "沈姝妤"
-date: "1/19/2017"
+date: "29 Feb. 2017"
 output:
   html_document:
     toc: true
-    toc_depth: 2
+    toc_float: TRUE
+    toc_depth: 4
     theme: paper
     highlight: espresso
 ---
@@ -13,33 +14,162 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+---
 
+### 第三次期中作業說明
 
-## 資料概觀
+練習使用 **ggplot2** 繪出『 *散佈圖、直方圖、線圖、盒鬚圖、長條圖* 』，並搭配 **R Markdown** 做呈現。
+於 R 程式設計班 278 期，授課老師：郭耀仁。
+
+---
+
+### 資料庫使用
 
 ```{r echo=FALSE, message=FALSE}
 library(plotly)
 ```
 
-我使用 `mpg` 資料集，它的資訊如下：
+我使用了以下多種資料集：
+
+- iris (樣本數: 150)
+- economics (樣本數: 574)
+- airquality (樣本數: 153)
+- trees (樣本數: 31)
+
+---
+
+### 1. 散佈圖
+
+1-1 概要：`iris 資料集`
+
+用三種鳶尾花的萼片長寬以及花瓣長寬做出的資料集。
+
+```{r echo=FALSE}
+str(iris)
+```
+
+1-2 圖表：散佈圖 + 線性關係
+
+可看出若是以花瓣 (petal) 的 **長度** 及 **寬度** 之間的線性關係，三種鳶尾花算是一致的。
+
+```{r message=FALSE}
+ggplot(iris, aes(x = Petal.Length, y = Petal.Width, color = Species)) +
+  geom_point() +
+  ggtitle("Petal Length vs. Petal Width") + xlab("Petal Length") + ylab("Petal Width") +
+  geom_smooth(aes(x = Petal.Length, y = Petal.Width), inherit.aes = FALSE, method = "lm") + 
+  # 補充：se = FALSE 可取消線性下方陰影。
+  theme_bw() # 使用空白背景。
+```
+
+---
+
+### 2. 直方圖
+
+2-1 概要：如同 1-1 的 `iris 資料集`，此處不再重複贅述。
+
+2-2 圖表：直方圖
+
+使用三種鳶尾花的萼片 (sepal) 和花瓣 (petal) 寬度所呈現的直方圖。
+
+發現以 **花瓣** 區分鳶尾花的種類會更清楚且容易，尤其是Setosa，可說是獨樹一格；
+
+反觀 **萼片** 的結果，卻是離散到三個種類糾纏不清。
+
+```{r message=FALSE}
+ggplot(iris, aes(x = Sepal.Width)) +
+  geom_bar(aes(fill = Species))+
+  ggtitle("Frequency of Iris' Sepal Width", subtitle = "in different species")
+ggplot(iris, aes(x = Petal.Width)) +
+  geom_bar(aes(fill = Species))+
+  ggtitle("Frequency of Iris' Petal Width", subtitle = "in different species")
+```
+
+---
+
+### 3. 線圖
+
+3-1 概要：`economics 資料集`
+
+從 1967 七月到 2015 四月，美國經濟狀況，這次針對 **個人儲蓄指數** (personal saving rate) 描繪線圖。
+
+```{r echo=FALSE}
+str(economics)
+```
+
+3-2 圖表：線圖
 
 ```{r}
-str(mpg)
-summary(mpg)
+ggplot(economics, aes(x = date, y = psavert)) +
+  ggtitle("Personal Savings Rate", subtitle = "from US by Time") +
+  xlab("Date") + ylab("Personal Savings Rate") +
+  geom_line(colour = "pink") +
+  geom_point(colour = "red", size = 0.1)
 ```
 
+---
 
-## 長條圖
+### 4. 盒鬚圖
 
-這是一個使用 `ggplotly()` 加入互動性的長條圖。
+4-1 概要：`airquality 資料庫`
 
-```{r echo=FALSE, message=FALSE}
-static_gg <- ggplot(mpg, aes(x = class)) +
-  geom_bar(aes(fill = drv))
-ggplotly(static_gg)
+於 1973 年五月到九月，紐約市的每天測量數值，包含了臭氧值 (ppb) 、風速 (mph) 、溫度 (度F) ⋯⋯等。
+
+```{r echo=FALSE}
+str(airquality)
 ```
 
+4-2 圖表：盒鬚圖
 
-## 插入圖片
-**豆豆蟲**
-![](https://s-media-cache-ak0.pinimg.com/736x/60/e0/99/60e09963fe9533a4b4a72cb6e44d0c82.jpg) #(by貼上圖檔來源網址)
+以五個月份做出紐約市的溫度做出盒鬚圖。
+
+可看出七月的溫度離散最小，溫度集中偏高；
+
+而五月氣溫偏低，卻同時也溫差大；
+
+額外一提，溫差最大的約份是九月，可達 10 度 F。
+
+```{r}
+airquality$Month <- as.factor(airquality$Month)
+ggplot(airquality, aes(x = Month, y = Temp)) +
+  geom_boxplot(fill = "white", colour = "#3366FF", outlier.colour = "red", outlier.shape = 1) +
+  ggtitle("Deviation of Daily Temperature", subtitle = "in NY, May to Sep. in 1973") +
+  ylab("Temperature (degrees F)")
+```
+
+---
+
+### 5. 長條圖
+
+5-1 概要：`trees 資料庫`
+
+測量 31 個被砍伐的黑櫻樹的數值，其中有：周長 (inches)、高度 (ft) 、 木材體積 (cubic ft) 。
+
+```{r echo=FALSE}
+str(trees)
+```
+
+5-2 圖表：長條圖
+
+使用黑櫻樹的高度做參數，並因資料庫只有 31 個，將組距設為十個。
+
+```{r}
+ggplot(trees, aes(x = Height)) +
+  ggtitle("Frequency of Trees' Height") +
+  xlab("Height") +
+  geom_histogram(bins = 10)
+```
+
+---
+
+### 輕鬆時間
+
+練習使用插圖：白痴卡通 **豆豆蟲**
+
+![](https://s-media-cache-ak0.pinimg.com/736x/60/e0/99/60e09963fe9533a4b4a72cb6e44d0c82.jpg)
+
+---
+
+### 參考連結
+
+- [R Markdown - R Studio](http://rmarkdown.rstudio.com/index.html)
+- [R 程式設計班課程 - 郭耀仁](https://yaojenkuo.github.io/r_programming/)
